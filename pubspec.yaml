@@ -1,6 +1,6 @@
 name: flutter_autoupdate
 description: Easily add auto update functionality to your Flutter application
-version: 1.0.0
+version: 1.1.0
 author: Victor See<hello@imvictor.me>
 homepage: https://github.com/feedmepos/flutter_autoupdate
 
