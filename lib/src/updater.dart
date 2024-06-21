@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:app_installer/app_installer.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:dio/dio.dart';
+import 'package:flutter_app_installer/flutter_app_installer.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:version/version.dart';
@@ -150,11 +150,13 @@ class UpdateResult {
   Future<void> runUpdate(FilePath uri,
       {bool autoExit = false, int exitDelay = 3000}) async {
     if (Platform.isIOS) {
-      await canLaunch(downloadUrl)
-          ? await launch(downloadUrl)
+      await canLaunchUrl(Uri.parse(downloadUrl))
+          ? await launchUrl(Uri.parse(downloadUrl))
           : throw Exception("Fail to launch App Store url");
     } else if (Platform.isAndroid) {
-      await AppInstaller.installApk(uri);
+      final FlutterAppInstaller flutterAppInstaller = FlutterAppInstaller();
+
+      await flutterAppInstaller.installApk(filePath: uri);
     } else if (Platform.isWindows) {
       // Start the process using Windows shell instead of our parent process.
       // A detached process has no connection to its parent,
@@ -195,8 +197,7 @@ class UpdateManager {
   Future<UpdateResult?> fetchUpdates() async {
     if (Platform.isIOS) {
       assert(appId != null, "appId must not be null for iOS");
-      return await IosAppId(appId!, countryCode)
-          .fetchUpdate();
+      return await IosAppId(appId!, countryCode).fetchUpdate();
     } else if (Platform.isAndroid || Platform.isWindows) {
       assert(versionUrl != null,
           'versionUrl must not be null for the current platform.');

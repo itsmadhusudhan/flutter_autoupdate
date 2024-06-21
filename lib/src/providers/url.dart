@@ -1,7 +1,8 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_autoupdate/flutter_autoupdate.dart';
 import 'package:flutter_autoupdate/src/providers/provider.dart';
-import 'package:version/version.dart';
 
 class Url extends Provider {
   Url(this.versionUrl);
@@ -11,8 +12,9 @@ class Url extends Provider {
   @override
   Future<UpdateResult?> fetchUpdate() async {
     var res = await Dio().get(versionUrl);
-    if (res.data is List) {
-      var list = res.data.map((item) => UpdateResult.fromJson(item)).toList();
+    final data = res.data is String ? jsonDecode(res.data) : res.data;
+    if (data is List) {
+      final list = data.map((item) => UpdateResult.fromJson(item)).toList();
       return UpdateResult(
           latestVersion: list[0].latestVersion,
           downloadUrl: list[0].downloadUrl,
@@ -20,7 +22,7 @@ class Url extends Provider {
           releaseDate: list[0].releaseDate,
           sha512: list[0].sha512);
     } else {
-      var result = UpdateResult.fromJson(res.data);
+      final result = UpdateResult.fromJson(data);
       return UpdateResult(
           latestVersion: result.latestVersion,
           downloadUrl: result.downloadUrl,
